@@ -2,9 +2,12 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
-#include <queue>
 #include <stack>
 #include <string>
+#include <queue>
+
+void autoStacker(std::stack<std::string> &ts, std::stack<double> &ds, std::stack<int> &is, std::string var);
+auto autoPoppper(std::stack<std::string> &ts, std::stack<double> &ds, std::stack<int> &is);
 
 int main(int argc, char* argv[]) {
 
@@ -21,8 +24,8 @@ int main(int argc, char* argv[]) {
     // Initation
     std::string s;
     std::queue <std::string> op;
-    std::stack <int> intStack;
     std::stack <double> doubleStack;
+    std::stack <int> intStack;
     std::stack <std::string> typeStack;
 
 
@@ -35,35 +38,30 @@ int main(int argc, char* argv[]) {
     while (!op.empty()){
         std::string frontElem = op.front();
         if (frontElem.find('.') != std::string::npos){
-            double d = std::stod(frontElem);
-            doubleStack.push(d);
-            typeStack.push("double");
-            std::cout << "double stack: " << doubleStack.top() << "\n";
+            autoStacker(typeStack, doubleStack, intStack, frontElem);
         } else if (std::isdigit(frontElem[0])){
-            int i = std::stoi(frontElem);
-            intStack.push(i);
-            typeStack.push("integer");
-            std::cout << "integer stack: " << intStack.top() << "\n";
+            autoStacker(typeStack, doubleStack, intStack, frontElem);
         } else {
-            if (frontElem.find('add')){
-                auto var1;
-                auto var2;
+            if (frontElem.find("add")){
+                auto var1 = autoPoppper(typeStack, doubleStack, intStack);
+                auto var2 = autoPoppper(typeStack, doubleStack, intStack);
 
-                var1 = popper(typeStack, doubleStack, intStack);
-                var2 = popper(typeStack, doubleStack, intStack);
-            } else if (frontElem.find('sub')){
+                auto sum = var1 + var2;
+                autoStacker(typeStack, doubleStack, intStack, sum);
+                std::cout << var1 << " + " << var2 << " = " << sum << "\n";
+            } else if (frontElem.find("sub")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('div')){
+            } else if (frontElem.find("div")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('sqrt')){
+            } else if (frontElem.find("sqrt")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('pop')){
+            } else if (frontElem.find("pop")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('reverse')){
+            } else if (frontElem.find("reverse")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('repeat')){
+            } else if (frontElem.find("repeat")){
                 std::cout << "operator: " << op.front() << "\n";
-            } else if (frontElem.find('endrepeat')){
+            } else if (frontElem.find("endrepeat")){
                 std::cout << "operator: " << op.front() << "\n";
             }
         }
@@ -72,4 +70,34 @@ int main(int argc, char* argv[]) {
 
     //close input file
     in.close();
+}
+
+void autoStacker(std::stack<std::string> &ts, std::stack<double> &ds, std::stack<int> &is, std::string var){
+    if (var.find('.') != std::string::npos){
+        double d = std::stod(var);
+        ds.push(d);
+        ts.push("double");
+        //debugger
+        std::cout << "PUSHED: double stack: " << ds.top() << "\n";
+    } else if (std::isdigit(var[0])){
+        int i = std::stoi(var);
+        is.push(i);
+        ts.push("integer");
+        //debugger
+        std::cout << "PUSHED: integer stack: " << is.top() << "\n";
+    }
+}
+
+auto autoPoppper(std::stack<std::string> &ts, std::stack<double> &ds, std::stack<int> &is){
+    auto var;
+    string typeCheck = ts.top();
+    if (typeCheck.find("double")){
+        var = ds.top();
+        ds.pop();
+    } else {
+        var = is.pop();
+        is.pop();
+    }
+    ts.pop();
+    return var;
 }
