@@ -9,20 +9,19 @@
 #include <algorithm>
 
 //Prototype Declaration
+//operations
+std::string checker(std::stack<std::string> &numbers, std::string op, std::string var1, std::string var2);
 template<typename T>
 T operation(T x, T y, std::string op);
-
 void sqrt_op(std::stack<std::string> &numbers, std::string var);
 void reverse_op(std::stack<std::string> &numbers, int nth);
 void pop_op(std::stack<std::string> &numbers);
 void repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, int times);
 void end_repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, std::vector<std::string> &repeater, int times);
-std::string checker(std::stack<std::string> &numbers, std::string op, std::string var1, std::string var2);
 
+//End stage printer
 void op_ptr(std::string op, auto x, auto y, auto z);
 void pre_print_check(std::string op, std::string x, std::string y, std::string z);
-
-void ptr(std::stack<std::string> stk);
 
 int main(int argc, char* argv[]) {
 
@@ -34,8 +33,8 @@ int main(int argc, char* argv[]) {
     std::ifstream in;
     in.open(argv[1]);
 
-    //seg fault will occur if theres no input
-
+    //seg fault will occur if theres no input so 
+    //I have it set to EXIT_FAILURE if no input
     if (argv[1] != NULL){
         std::cout << argv[1] << std::endl;
     } else {
@@ -56,10 +55,10 @@ int main(int argc, char* argv[]) {
     // loop from queue
     while (!op.empty()){
         std::string frontElem = op.front();
+        //Check if the front of the queue is a digit
         if (std::isdigit(frontElem[0]) || std::isdigit(frontElem[1])){
             numbers.push(frontElem);
             op.pop();
-            // std::cout << "number: " << numbers.top() << "\n";
         } else {
             if (frontElem.find("repeat") != std::string::npos){
                 int nth = std::stoi(numbers.top());
@@ -68,7 +67,6 @@ int main(int argc, char* argv[]) {
                 repeat_op(op, numbers, nth);
             } else {
                 if (frontElem.find("pop") != std::string::npos){
-                    // std::cout << numbers.top() << " Popped\n";
                     numbers.pop();
                 } else if (frontElem.find("reverse") != std::string::npos){
                     int nth = std::stoi(numbers.top());
@@ -110,84 +108,6 @@ void pre_print_check(std::string op, std::string x, std::string y, std::string z
         op_ptr(op, v1, v2, v3);
     } else {
         op_ptr(op, x, y, z);
-    }
-}
-
-//While it didn't find the endrepeat command will continuwe
-void repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, int times){
-    std::vector<std::string> rep;
-
-    while (!op.empty()){
-        std::string var = op.front();
-        if (var.find("endrepeat") == std::string::npos){
-            rep.push_back(var);
-            op.pop();
-        } else {
-            op.pop();
-            break;
-        }
-    }
-    end_repeat_op(op, numbers, rep, times);
-}
-
-void end_repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, std::vector<std::string> &repeater, int times){
-    for (int i = 0; i < times; i++){
-        for (auto itr = repeater.begin(); itr != repeater.end(); ++itr){
-            std::string it = *itr;
-            if (std::isdigit(it[0]) || std::isdigit(it[1])){
-                numbers.push(it);
-            } else {
-                if (it.find("pop") != std::string::npos){
-                    // std::cout << numbers.top() << " Popped\n";
-                    numbers.pop();
-                } else if (it.find("reverse") != std::string::npos){
-                    int nth = std::stoi(numbers.top());
-                    numbers.pop();
-                    reverse_op(numbers, nth);
-                } else if(it.find("sqrt") != std::string::npos){
-                    auto var = numbers.top();
-                    numbers.pop();
-                    sqrt_op(numbers, var);
-                //All other simple op
-                } else {
-                    auto var1 = numbers.top();
-                    numbers.pop();
-                    auto var2 = numbers.top();
-                    numbers.pop();
-                    auto var3 = checker(numbers, it, var1, var2);
-                    pre_print_check(it, var1, var2, var3);
-                }
-            }
-        }
-    }
-}
-
-//Square Root Op
-void sqrt_op(std::stack<std::string> &numbers, std::string var){
-    if (var.find('.') != std::string::npos){
-        double x = std::stod(var);
-        double y = std::sqrt(x);
-        numbers.push(std::to_string(y));
-        std::cout << "sqrt " << x << " = " << y << "\n";
-    } else {
-        int x = std::stoi(var);
-        int y = std::sqrt(x);
-        numbers.push(std::to_string(y));
-        std::cout << "sqrt " << x << " = " << y << "\n";
-    }
-}
-
-//Reverse op
-void reverse_op(std::stack<std::string> &numbers, int nth){
-    std::queue <std::string> reverse;
-    // std::cout << "blocks of number to reverse: " << nth << "\n";
-    for (int i = 0; i < nth; ++i){
-        reverse.push(numbers.top());
-        numbers.pop(); 
-    }
-    for (int j = 0; j < nth; ++j){
-        numbers.push(reverse.front());
-        reverse.pop();
     }
 }
 
@@ -241,12 +161,82 @@ T operation(T x, T y, std::string op){
     return z;
 }
 
-//Debugger printer
-void ptr(std::stack<std::string> stk){
-    std::cout << "--------------------\n";
-    while (!stk.empty()){
-        std::cout << "\t" << stk.top() << "\n";
-        std::cout << "--------------------\n";
-        stk.pop();
+//While it didn't find the endrepeat command will continue
+void repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, int times){
+    std::vector<std::string> rep;
+
+    while (!op.empty()){
+        std::string var = op.front();
+        if (var.find("endrepeat") == std::string::npos){
+            rep.push_back(var);
+            op.pop();
+        } else {
+            op.pop();
+            break;
+        }
+    }
+    end_repeat_op(op, numbers, rep, times);
+}
+
+//when this function is called it iterate through the vector for the amount of times needed
+//basically execute all the operation
+//pushing numbers into stack while executing from vector instead
+void end_repeat_op(std::queue <std::string> &op, std::stack <std::string> &numbers, std::vector<std::string> &repeater, int times){
+    for (int i = 0; i < times; i++){
+        //Vector iteration
+        for (auto itr = repeater.begin(); itr != repeater.end(); ++itr){
+            std::string it = *itr;
+            if (std::isdigit(it[0]) || std::isdigit(it[1])){
+                numbers.push(it);
+            } else {
+                if (it.find("pop") != std::string::npos){
+                    numbers.pop();
+                } else if (it.find("reverse") != std::string::npos){
+                    int nth = std::stoi(numbers.top());
+                    numbers.pop();
+                    reverse_op(numbers, nth);
+                } else if(it.find("sqrt") != std::string::npos){
+                    auto var = numbers.top();
+                    numbers.pop();
+                    sqrt_op(numbers, var);
+                //All other simple op
+                } else {
+                    auto var1 = numbers.top();
+                    numbers.pop();
+                    auto var2 = numbers.top();
+                    numbers.pop();
+                    auto var3 = checker(numbers, it, var1, var2);
+                    pre_print_check(it, var1, var2, var3);
+                }
+            }
+        }
+    }
+}
+
+//Square Root Op
+void sqrt_op(std::stack<std::string> &numbers, std::string var){
+    if (var.find('.') != std::string::npos){
+        double x = std::stod(var);
+        double y = std::sqrt(x);
+        numbers.push(std::to_string(y));
+        std::cout << "sqrt " << x << " = " << y << "\n";
+    } else {
+        int x = std::stoi(var);
+        int y = std::sqrt(x);
+        numbers.push(std::to_string(y));
+        std::cout << "sqrt " << x << " = " << y << "\n";
+    }
+}
+
+//Reverse op
+void reverse_op(std::stack<std::string> &numbers, int nth){
+    std::queue <std::string> reverse;
+    for (int i = 0; i < nth; ++i){
+        reverse.push(numbers.top());
+        numbers.pop(); 
+    }
+    for (int j = 0; j < nth; ++j){
+        numbers.push(reverse.front());
+        reverse.pop();
     }
 }
